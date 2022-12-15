@@ -17,6 +17,36 @@ export const matchPeople = people => {
   // 1. For every person there has to be a giver
   // 2. A person cannot be their own giver
 
-  let secretSantaList = []
+  const giverList = [...people]
+  const receiverList = [...people]
+
+  let secretSantaList =  giverList.reduce((pV, cV) => {
+    const giver = { name: cV.name, email: cV.email }
+    let receiverIndex = Math.floor(Math.random() * receiverList.length)
+    while(receiverList[receiverIndex].email === giver.email && receiverList.length !== 1) {
+      receiverIndex = Math.floor(Math.random() * receiverList.length)
+    }
+    const receiver = { name: receiverList[receiverIndex].name, email: receiverList[receiverIndex].email }
+    receiverList.splice(receiverIndex, 1)
+    return [...pV, { giver, receiver }]
+  }, [])
+
+  const hasDuplicate = () => {
+    return secretSantaList.filter(pair => pair.giver.email === pair.receiver.email).length > 0
+  }
+
+  if (hasDuplicate()) {
+    return [
+      ...secretSantaList.splice(0, secretSantaList.length - 2),
+      { 
+        giver: secretSantaList[secretSantaList.length - 2].giver,
+        receiver: secretSantaList[secretSantaList.length - 1].receiver
+      },
+      { 
+        giver: secretSantaList[secretSantaList.length - 1].giver,
+        receiver: secretSantaList[secretSantaList.length - 2].receiver
+      }
+    ]
+  }
   return secretSantaList
 }
